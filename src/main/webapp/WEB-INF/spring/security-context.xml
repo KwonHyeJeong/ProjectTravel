@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd 
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<bean id="customAccessDenied" class="edu.spring.travel06.security.CustomAccessDeniedHandeler"></bean>
+	<bean id="customLoginSuccess" class="edu.spring.travel06.security.CustomLoginSuccessHandler"></bean>
+	<bean id="bcryptPasswordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"></bean>
+	<bean id="customUserDetailsService" class="edu.spring.travel06.security.CustomUserDetailsService"></bean>
+	
+	<bean id="customUserAuthProvider" class="edu.spring.travel06.security.CustomAuthenticationProvider"/>
+	
+	
+	<security:http use-expressions="true">
+		
+		
+		
+		<security:intercept-url pattern="/main/all" access="permitAll"/>
+		
+		<security:intercept-url pattern="/main/finduserID" access="permitAll"/>
+		<security:intercept-url pattern="/main/finduserID-result" access="permitAll"/>
+		<security:intercept-url pattern="/main/finduserPWD" access="permitAll"/>
+		<security:intercept-url pattern="/main/finduserPWD-result" access="permitAll"/>
+		
+		<security:intercept-url pattern="/main/findAdminID" access="permitAll"/>
+		<security:intercept-url pattern="/main/findAdminID-result" access="permitAll"/>
+		<security:intercept-url pattern="/main/findAdminPWD" access="permitAll"/>
+		<security:intercept-url pattern="/main/findAdminPWD-result" access="permitAll"/>
+		<security:intercept-url pattern="/admin/register" access="permitAll"/>
+		<security:intercept-url pattern="/user/register" access="permitAll"/>
+		
+		
+		<security:intercept-url pattern="/main/user" access="hasRole('ROLE_USER')"/>
+		<security:intercept-url pattern="/main/admin" access="hasRole('ROLE_ADMIN')"/>
+		
+		<security:access-denied-handler error-page="/main/accessError"/> 
+		<!--security:access-denied-handler ref="customAccessDenied"/-->
+		
+		
+		
+		<security:form-login login-page="/customLogin"
+		authentication-success-handler-ref="customLoginSuccess"/> 
+		
+		<security:logout logout-url="/customLogout" invalidate-session="false"/>
+		<security:csrf disabled="true"/>
+		
+		
+		<security:session-management invalid-session-url="/main/all"> 
+			<security:concurrency-control max-sessions="5" error-if-maximum-exceeded="false" /> 
+		</security:session-management>
+
+
+		
+		
+		
+		
+	</security:http>
+	
+	
+	<security:authentication-manager>
+		
+		
+		<security:authentication-provider 
+						ref="customUserAuthProvider" />
+		
+						
+			
+		<security:authentication-provider user-service-ref="customUserDetailsService">
+			<security:password-encoder ref="bcryptPasswordEncoder"/>
+		
+		</security:authentication-provider>
+			
+		
+		
+	</security:authentication-manager>
+	
+
+
+</beans>

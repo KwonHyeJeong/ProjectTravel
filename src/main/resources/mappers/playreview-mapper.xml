@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="edu.spring.travel06.PlayReviewMapper">
+
+	<insert id="insert">
+		insert into ${play_review}
+			(${playNo}, ${playReviewContent}, ${userNickname})
+			values (#{playNo}, #{playReviewContent}, #{userNickname})
+	</insert>
+	
+	
+	<select id="select_all" resultType="PlayReviewVO">
+		select * from ${play_review}
+		where ${playNo} = #{playNo}
+		order by ${playNo}
+	</select>
+	
+	
+	<select id="select_by_reviewNo" resultType="PlayReviewVO">
+		select * from ${play_review}
+		where ${playReviewNO} = #{playReviewNO}
+		
+	</select>
+	
+	<select id="select_by_userNickName" resultType="PlayReviewVO">
+		select * from ${play_review}
+		where ${userNickname} = #{userNickname}
+		
+	</select>
+	
+	
+
+	<update id="update">
+		update ${play_review}
+		set ${playReviewContent} = #{playReviewContent}
+		where ${playReviewNO} = #{playReviewNO}
+	</update>
+	
+	<!-- 댓글 작성자에 따라 update -->
+	<update id="update_by_userNickName">
+		update ${play_review}
+		set ${userNickname} = #{newNickname}
+		where ${userNickname} = #{userNickname}
+	</update>
+	
+	
+	
+	
+	<delete id="delete">
+		delete from ${play_review}
+		where ${playReviewNO} = #{playReviewNO}
+	</delete>
+	
+	<!-- 댓글 페이징 처리 -->
+    <select id="listPaging" resultType="PlayReviewVO">
+      select 
+      b.${playReviewNO},  b.${playNo}, b.${userNickname}, 
+      b.${playReviewContent}, b.${playReviewCdate}
+      from (
+      		select rownum rn, a.*
+      		from (
+      			select * from ${play_review}
+      			where ${playNo} = #{playNo}
+      			order by ${playReviewNO}
+      			)a
+      		)b
+      		where rn between #{start} and #{end}
+   </select> 
+   
+   <!-- 댓글 수 -->
+   <select id="countReviews">
+      select count(${playNo})
+      from ${play_review}
+      where ${playNo} = #{playNo}
+   </select>
+   
+   
+</mapper>

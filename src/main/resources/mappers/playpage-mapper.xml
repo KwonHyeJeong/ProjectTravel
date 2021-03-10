@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="edu.spring.travel06.PlayMapper">
+	
+	<insert id="insert">
+		insert into ${play_page} (${playNo}, ${playTitle}, ${playContent}, ${userNickname}, ${img})
+		values (#{playNo}, #{playTitle}, #{playContent}, #{userNickname},  #{img})
+	</insert>	
+	
+	<select id="select_all" resultType="PlayPageVO">
+		select * from ${play_page}
+		order by ${playNo} desc
+	</select>
+	
+	<select id="select_by_playNo" resultType="PlayPageVO">
+		select * from ${play_page}
+		where ${playNo} = #{playNo}
+	</select>
+	
+	<update id="update_view_cnt">
+		update ${play_page}
+		set ${playViewCnt} = ${playViewCnt} +1
+		where ${playNo} = #{playNo}
+	</update>
+	
+	<update id="update">
+		update ${play_page}
+		set ${playTitle} = #{playTitle}, ${playContent} = #{playContent}
+		where ${playNo} = #{playNo}
+	</update>
+	
+	<!-- 게시판 작성자에 따라 업데이트 -->
+	<update id="update_by_userNickname">
+		update ${play_page}
+		set ${userNickname} = #{newNickname}
+		where ${userNickname} = #{userNickname}
+	</update>
+	
+	
+	
+	<delete id="delete">
+		delete from ${play_page}
+		where ${playNo} = #{playNo}
+	</delete>
+
+	<select id="total_count" resultType="Integer">
+		select count(*) total_cnt from ${play_page}
+	</select>
+	
+	
+	
+	<select id="paging" resultType="PlayPageVO">
+		select 
+		b.${playNo}, b.${playTitle}, b.${playContent}, b.${userNickname}, 
+		b.${playGoodCnt}, b.${playViewCnt}, b.${playReplyCnt},
+		b.${playWishCnt},  b.${playCdate}, b.${img}
+		from ( 
+			select rownum rn, a.* 
+			from (
+				select * from ${play_page} 
+				<include refid="search"></include> 
+			)a
+		)b 
+		where rn between #{start} and #{end}
+		order by b.${playNo} desc
+	</select> 
+	
+	
+	
+		
+	
+	<select id="select_by_user_nickname" resultType="PlayPageVO">
+		select * from ${play_page}
+		where ${userNickname} like #{userNickname}
+	</select>
+	
+	
+	<select id="select_by_title_content" resultType="PlayPageVO">
+		select * from ${play_page}
+		where ${playTitle} like #{keyword} or
+			${playContent} like #{keyword}
+			order by ${playNo} desc
+	</select>
+	
+	
+	<!-- 게시판 조회수 -->
+	<update id="update_playViewCnt" parameterType="int">
+		update ${play_page}
+		set ${playViewCnt} = ${playViewCnt} + 1
+		where ${playNo} = #{playNo}
+	</update> 
+	
+	<!-- 검색조건  -->
+	<sql id="search">
+		<if test = "type != null">
+			<if test="type == 'title'.toString()"> 
+			where play_title LIKE '%'|| #{keyword}||'%' 
+			</if>
+			<if test="type == 'content'.toString()"> 
+			where play_content LIKE '%'||#{keyword}||'%'
+			</if> 
+			<if test="type == 'user'.toString()"> 
+			where user_nickname LIKE '%'||#{keyword}||'%' 
+			</if> 
+			<if test="type == 'all'.toString()"> 
+			where( 
+			play_title LIKE '%' ||#{keyword}||'%' or
+			play_content LIKE '%'|| #{keyword}|| '%'or 
+			user_nickname LIKE '%'||#{keyword}||'%'  
+				) 
+			</if>
+		</if>
+	</sql>
+	
+	
+	<!-- 댓글 수 -->
+	<update id="update_playReviewCnt">
+		update ${play_page}
+		set ${playReplyCnt} = ${playReplyCnt} + #{amount}
+		where ${playNo} = #{playNo}
+	</update>
+	
+	
+	
+	
+	<!-- 좋아요 기능 -->
+	<insert id="createBoardLike">
+		INSERT INTO ${play_like} (${playNo}, ${mno})
+		VALUES (#{playNo}, #{mno})
+	</insert>
+	
+	
+	<delete id="deleteBoardLike">
+		DELETE FROM ${play_like}
+		WHERE ${playNo} = #{playNo} AND ${mno} = #{mno}
+	</delete>
+	
+	
+	<select id="updateBoardLike">
+		UPDATE ${play_page}
+		SET
+		${playGoodCnt} = (SELECT COUNT(*)
+		FROM ${play_like}
+		WHERE ${playNo} = #{playNo})
+		WHERE ${playNo} = #{playNo}
+	</select>
+
+	<select id="getBoardLike" resultType="int">
+		SELECT COUNT(${playLikeNo}) FROM ${play_like} 
+		WHERE ${playNo} = #{playNo}
+		AND ${mno} = #{mno}
+	</select>
+	
+	
+	<select id="selectLike" resultType="PlayLikeVO">
+	SELECT * from ${play_like}
+	where ${mno} = #{mno}
+	</select>
+
+
+	<select id="selectPlayLike" resultType="PlayPageVO">
+		select * from ${play_page}
+		where ${playNo} = #{playNo}
+		order by ${playNo} desc
+	</select>
+	
+	
+	
+	
+	<!-- 찜하기 기능 -->
+	<insert id="createPlayWish">
+		INSERT INTO ${play_wish} (${playNo}, ${mno})
+		VALUES
+		(#{playNo}, #{mno})
+	</insert>
+	
+	
+	<delete id="deletePlayWish">
+		DELETE FROM ${play_wish}
+		WHERE ${playNo} = #{playNo}
+		AND ${mno} = #{mno}
+	</delete>
+	
+	
+	<select id="updatePlayWish">
+		UPDATE ${play_page}
+		SET
+		${playWishCnt} = (SELECT
+		COUNT(*)
+		FROM ${play_wish}
+		WHERE ${playNo} = #{playNo})
+		WHERE ${playNo} =
+		#{playNo}
+	</select>
+	
+	
+	<select id="getPlayWish" resultType="int">
+		SELECT COUNT(${playWishNo})
+		FROM ${play_wish} WHERE ${playNo} = #{playNo}
+		AND ${mno} = #{mno}
+	</select>
+	
+	
+	<select id="selectWish" resultType="PlayWishVO">
+		SELECT * from ${play_wish}
+		where ${mno} = #{mno}
+	</select>
+	
+	
+	<select id="selectPlayWish" resultType="PlayPageVO">
+		select * from ${play_page}
+		where ${playNo} = #{playNo}
+		order by ${playNo} desc
+	</select>
+	
+	
+	<!-- 조회수별 순위 -->
+	<select id="bestListAll" resultType="PlayPageVO">
+	    select * from ${play_page}
+		order by ${playViewCnt} desc
+	</select>
+	
+	<!-- 댓글수별 순위 -->
+	<select id="bestReviewAll" resultType="PlayPageVO">
+	    select * from ${play_page}
+		order by  ${playReplyCnt} desc
+	</select>
+	
+	<!-- 좋아요별 순위 -->
+	<select id="bestGoodAll" resultType="PlayPageVO">
+	    select * from ${play_page}
+		order by  ${playGoodCnt} desc
+	</select>
+	
+	<!-- 찜하기별 순위 -->
+	<select id="bestWishAll" resultType="PlayPageVO">
+	    select * from ${play_page}
+		order by  ${playWishCnt} desc
+	</select>
+	
+	
+	
+	
+</mapper>
+
+

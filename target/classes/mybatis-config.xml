@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+
+<configuration>
+	<!-- DB 테이블과 컬럼들을 mapper 매핑을 위한 변수 선언-->
+	
+	<properties>
+		<!-- 
+		* property
+		- name : mapper.xml에서 사용될 이름 (가능하면 VO 변수명과 동일하게)
+		- value : DB 테이블 및 컬럼 이름 
+		
+		 -->
+		 
+		 <!-- project_admin DB연동 -->
+		 <property name="project_admin" value="project_admin"/>
+		 <property name="adminNo" value="admin_no"/>
+		 <property name="adminName" value="admin_name"/>
+		 <property name="adminID" value="admin_id"/>
+		 <property name="adminPWD" value="admin_pwd"/>
+		 <property name="adminPhone" value="admin_phone"/>
+		 <property name="adminCompany" value="admin_company"/>
+		 <property name="adminEmail" value="admin_email"/>
+		 <property name="adminBirth" value="admin_birth"/>
+		
+		 
+		 <!-- project_user DB 연동 -->
+		 <property name="project_user" value="project_user"/>
+		 <property name="userNo" value="user_no"/>
+		 <property name="userName" value="user_name"/>
+		 <property name="userID" value="user_id"/>
+		 <property name="userPWD" value="user_pwd"/>
+		 <property name="userEmail" value="user_email"/>
+		 <property name="userPhone" value="user_phone"/>
+		 <property name="userBirth" value="user_birth"/>
+		 <property name="userNickName" value="user_nickname"/>
+		 <property name="userWarning" value="user_warning"/>
+		 
+		 
+		 
+		 
+	
+		<!-- Free_page DB 연동 -->
+		<property name="free_page" value="free_page"/>
+		<property name="freeNo" value="free_no"/>
+		<property name="freeTitle" value="free_title"/>
+		<property name="freeContent" value="free_content"/>
+		<property name="userNickname" value="user_nickname"/>
+		<property name="freeViewCnt" value="free_view_cnt"/>
+		<property name="freeReplyCnt" value="free_reply_cnt"/>
+		<property name="freeGoodCnt" value="free_good_cnt"/>
+		<property name="freeWishCnt" value="free_wish_cnt"/>
+		<property name="freeCdate" value="free_cdate"/>
+	
+		 
+		 <!-- Free_review DB 연동 -->
+		<property name="free_review" value="free_review"/>
+		<property name="freeReviewNo" value="free_review_no"/>
+		<property name="freeNo" value="free_no"/>
+		<property name="userNickname" value="user_nickname"/>
+		<property name="freeReviewContent" value="free_review_content"/>
+		<property name="freeReviewCdate" value="free_review_cdate"/>
+		
+		
+		<!-- Free_Like db 연동 -->
+		<property name="free_like" value="free_like"/>
+		<property name="boardlikeno" value="boardlikeno"/>
+		<property name="boardno" value="boardno"/>
+		<property name="mno" value="mno"/>
+		
+		<!-- Free_Wish db 연동 -->
+		<property name="free_wish" value="free_wish"/>
+	 	<property name="freeWishNo" value="free_wish_no"/>
+	 	<property name="freeNo" value="free_no"/>
+	 	<property name="mno" value="mno"/>
+		
+		
+		
+		<!-- Food_page db 연동 -->
+		<property name="food_page" value="food_page"/>
+		<property name="foodNo" value="food_no" />
+		<property name="foodTitle" value="food_title" />
+		<property name="foodContent" value="food_content" />
+		<property name="userNickname" value="user_nickname" />
+		<property name="foodViewCnt" value="food_view_cnt" />
+		<property name="foodReplyCnt" value="food_reply_cnt" />
+		<property name="foodGoodCnt" value="food_good_cnt" />
+		<property name="foodWishCnt" value="food_wish_cnt" />
+		<property name="foodCdate" value="food_cdate" />
+		<property name="img" value="img" />
+		
+		
+		<!-- Food_Like db 연동 -->
+		<property name="food_like" value="food_like"/>
+		<property name="foodLikeNo" value="food_like_no"/>
+	 	<property name="foodNo" value="food_no"/>
+	 	<property name="mno" value="mno"/>
+		
+		
+		<!-- Food_Wish db 연동 -->
+		<property name="food_wish" value="food_wish"/>
+	 	<property name="foodWishNo" value="food_wish_no"/>
+	 	<property name="foodNo" value="food_no"/>
+	 	<property name="mno" value="mno"/>
+		
+		
+		<!-- Food_Review db 연동 -->
+		<property name="food_review" value="food_review"/>
+		<property name="foodReviewNo" value="food_review_no"/>
+		<property name="foodNo" value="food_no"/>
+		<property name="userNickname" value="user_nickname"/>
+		<property name="foodReviewContent" value="food_review_content"/>
+		<property name="foodReviewCdate" value="food_review_cdate"/>
+		
+		
+		<!--Page_Notice db 연동 -->
+		<property name="page_notice" value="page_notice"/>
+		<property name="noticeNo" value="notice_no"/>
+		<property name="noticeTitle" value="notice_title"/>
+		<property name="noticeContent" value="notice_content"/>
+		<property name="noticeUserNickname" value="notice_user_nickname"/>
+		<property name="noticeViewCnt" value="notice_view_cnt"/>
+		<property name="noticeReplyCnt" value="notice_reply_cnt"/>
+		<property name="noticeCdate" value="notice_cdate"/>
+		
+		
+		
+		<!-- Theme_page db 연동 -->
+		<property name="thema_page" value="thema_page"/>
+		<property name="themaNo" value="thema_no" />
+		<property name="themaTitle" value="thema_title" />
+		<property name="themaContent" value="thema_content" />
+		<property name="userNickname" value="user_nickname" />
+		<property name="themaViewCnt" value="thema_view_cnt" />
+		<property name="themaReplyCnt" value="thema_reply_cnt" />
+		<property name="themaGoodCnt" value="thema_good_cnt" />
+		<property name="themaWishCnt" value="thema_wish_cnt" />
+		<property name="themaCdate" value="thema_cdate" />
+		<property name="img" value="img" />
+
+		
+		
+		<!-- thema_Like db 연동 -->
+		<property name="thema_like" value="thema_like"/>
+		<property name="themaLikeNo" value="thema_like_no"/>
+	 	<property name="themaNo" value="thema_no"/>
+	 	<property name="mno" value="mno"/>
+		
+		<!-- thema_Wish db 연동 -->
+		<property name="thema_wish" value="thema_wish"/>
+	 	<property name="themaWishNo" value="thema_wish_no"/>
+	 	<property name="themaNo" value="thema_no"/>
+	 	<property name="mno" value="mno"/>
+		
+		
+		
+		<!-- thema_Review db 연동 -->
+		<property name="thema_review" value="thema_review"/>
+		<property name="themaReviewNO" value="thema_review_no"/>
+		<property name="themaNo" value="thema_no"/>
+		<property name="userNickname" value="user_nickname"/>
+		<property name="themaReviewContent" value="thema_review_content"/>
+		<property name="themaReviewCdate" value="thema_review_cdate"/>
+		
+		
+		
+		<!-- Play_page db 연동 -->
+		<property name="play_page" value="play_page"/>
+		<property name="playNo" value="play_no" />
+		<property name="playTitle" value="play_title" />
+		<property name="playContent" value="play_content" />
+		<property name="userNickname" value="user_nickname" />
+		<property name="playViewCnt" value="play_view_cnt" />
+		<property name="playReplyCnt" value="play_reply_cnt" />
+		<property name="playGoodCnt" value="play_good_cnt" />
+		<property name="playWishCnt" value="play_wish_cnt" />
+		<property name="playCdate" value="play_cdate" />
+		<property name="img" value="img" />
+
+		
+		
+		<!-- Play_Like db 연동 -->
+		<property name="play_like" value="play_like"/>
+		<property name="playLikeNo" value="play_like_no"/>
+	 	<property name="playNo" value="play_no"/>
+	 	<property name="mno" value="mno"/>
+	 	
+	 	
+	 	<!-- Play_Wish db 연동 -->
+	 	<property name="play_wish" value="play_wish"/>
+	 	<property name="playWishNo" value="play_wish_no"/>
+	 	<property name="playNo" value="play_no"/>
+	 	<property name="mno" value="mno"/>
+	 	
+		
+		<!-- Play_Review db 연동 -->
+		<property name="play_review" value="play_review"/>
+		<property name="playReviewNO" value="play_review_no"/>
+		<property name="playNo" value="play_no"/>
+		<property name="userNickname" value="user_nickname"/>
+		<property name="playReviewContent" value="play_review_content"/>
+		<property name="playReviewCdate" value="play_review_cdate"/>
+		
+		
+		<!-- visitor db 연동 -->
+		<property name="visitor" value="visitor"/>
+		<property name="visitId" value="visit_id"/>
+		<property name="visitTime" value="visit_time"/>
+		
+		
+		
+		
+	</properties>
+	
+	
+	<!-- Underscore 명명법을 Camel 명명법으로 매핑 -->
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true"/>
+	</settings>
+	
+	
+	
+	
+	<!-- 
+	typeAliases : mapper.xml의 select 리턴 타입에 들어갈 클래스 경로를 설정
+	 -->
+	
+	<typeAliases>
+		<package name="edu.spring.travel06.domain"/>
+	
+	</typeAliases>
+	
+</configuration>
+
+

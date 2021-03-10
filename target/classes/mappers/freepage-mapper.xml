@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="edu.spring.travel06.FreeMapper">
+<!-- namespace : 주로 dao 클래스와 연결하기 위한 키로 사용 -->
+	<!-- 
+	컬럼이름 : mybatis-config.xml의 name
+	${컬럼이름} : DB 테이블의 열
+	#{컬럼이름} : 입력받은 데이터
+	 -->
+	<!-- 자유 게시판 입력  -->
+	<!-- 제목, 내용, 작성자  -->
+	<insert id="insert">
+		insert into ${free_page} 
+		(${freeTitle}, ${freeContent}, ${userNickname})
+		values (#{freeTitle}, #{freeContent}, #{userNickname})
+	</insert>
+	
+	<!-- 게시판 전체 선택 -->
+	<select id="select_all" resultType="FreePageVO">
+		select * from ${free_page}
+		order by ${freeNo} desc
+	</select>
+	
+	<!-- 게시판 번호에 따라 선택  -->
+	<select id="select_by_free_no" resultType="FreePageVO">
+		select * from ${free_page}
+		where ${freeNo} = #{freeNo}
+	</select>
+	
+	<!-- 게시판 번호에 따라 업데이트 -->
+	<update id="update">
+		update ${free_page}
+		set ${freeTitle} = #{freeTitle}, ${freeContent} = #{freeContent}
+		where ${freeNo} = #{freeNo}
+	</update>
+	
+	<!-- 게시판 작성자에 따라 업데이트 -->
+	<update id="update_by_userNickname">
+		update ${free_page}
+		set ${userNickname} = #{newNickname}
+		where ${userNickname} = #{userNickname}
+	</update>
+	
+	
+	<!-- 게시판 번호에 따라 삭제 -->
+	<delete id="delete">
+		delete from ${free_page}
+		where ${freeNo} = #{freeNo}
+	</delete>
+	
+	<!-- 게시판 몇 개 인지 -->
+	<select id="total_count" resultType="Integer">
+		select count(*) total_cnt from ${free_page}
+	</select>
+	
+	<!-- 게시판 페이징 처리 -->
+	<select id="paging" resultType="FreePageVO">
+		select 
+		b.${freeNo}, b.${freeTitle}, b.${freeContent}, b.${userNickname}, b.${freeCdate},
+		b.${freeViewCnt}, b.${freeReplyCnt}, b.${freeGoodCnt}, b.${freeWishCnt}
+		from ( 
+			select rownum rn, a.* 
+			from (
+				select * from ${free_page}
+				<!--
+				포함시 Error querying database
+				<include refid="search"/>
+				 -->
+				<include refid="search"></include>
+			)a
+		)b 
+		where rn between #{start} and #{end}
+		order by b.${freeNo} desc
+	</select> 
+	
+	
+	<!-- 작성자 list Paging -->
+	<select id="NicknameList" resultType="FreePageVO">
+		select 
+		b.${freeNo}, b.${freeTitle}, b.${freeContent}, b.${userNickname}, b.${freeCdate},
+		b.${freeViewCnt}, b.${freeReplyCnt}, b.${freeGoodCnt}, b.${freeWishCnt}
+		from ( 
+			select rownum rn, a.* 
+			from (
+				select * from ${free_page}
+				where ${userNickname} = #{userNickname}
+				order by ${freeNo}
+				)a
+		)b 
+		where rn between #{start} and #{end}
+	</select>
+	
+	
+	
+	<!-- 게시판 조회수 -->
+	<update id="update_freeViewCnt">
+		update ${free_page}
+		set ${freeViewCnt} = ${freeViewCnt} + #{amount}
+		where ${freeNo} = #{freeNo}
+	</update>
+	
+	<!-- 게시판 작성자로 검색 -->
+	<select id="select_by_user_nickname" resultType="FreePageVO">
+		select * from ${free_page}
+		where ${userNickname} like #{userNickname}
+	</select>
+	
+	<!-- 게시판 제목으로 검색 -->
+	<select id="select_by_free_title">
+		select * from ${free_page}
+		where ${freeTitle} like #{freeTitle}
+	</select>
+	
+	<!-- 게시판 내용으로 검색 -->
+	<select id="select_by_free_content">
+		select * from ${free_page}
+		where ${freeContent} like #{freeContent}
+	</select>
+	
+	<!-- 검색조건  -->
+	<sql id="search">
+		<if test = "type != null">
+			<if test="type == 'title'.toString()"> 
+			where free_title LIKE '%'|| #{keyword}||'%' 
+			</if>
+			<if test="type == 'content'.toString()"> 
+			where free_content LIKE '%'||#{keyword}||'%'
+			</if> 
+			<if test="type == 'user'.toString()"> 
+			where user_nickname LIKE '%'||#{keyword}||'%' 
+			</if> 
+			<if test="type == 'all'.toString()"> 
+			where( 
+			free_title LIKE '%' ||#{keyword}||'%' or
+			free_content LIKE '%'|| #{keyword}|| '%'or 
+			user_nickname LIKE '%'||#{keyword}||'%'  
+				) 
+			</if>
+		</if>
+	</sql>
+	
+	
+	
+	<!-- 댓글 수 -->
+	<update id="update_freeReviewCnt">
+		update ${free_page}
+		set ${freeReplyCnt} = ${freeReplyCnt} + #{amount}
+		where ${freeNo} = #{freeNo}
+	</update>
+	
+	
+	
+	<insert id="createBoardLike">
+        INSERT INTO ${free_like} (${boardno}, ${mno})
+        VALUES (#{boardno}, #{mno})
+    </insert>
+
+    <delete id="deleteBoardLike">
+        DELETE FROM ${free_like}
+        WHERE ${boardno} = #{boardno} AND ${mno} = #{mno}
+    </delete>
+
+    <select id="updateBoardLike">
+        UPDATE ${free_page}
+        SET
+        ${freeGoodCnt} = (SELECT COUNT(*)
+        FROM ${free_like}
+        WHERE ${boardno} = #{boardno})
+        WHERE ${free_page}.${freeNo} = #{freeNo}
+    </select>
+
+    <select id="getBoardLike" resultType="int">
+        SELECT COUNT(${boardlikeno}) FROM ${free_like} WHERE ${boardno} = #{boardno} AND ${mno} = #{mno}
+    </select>
+	
+	<select id="selectLike" resultType="BoardLikeVO">
+		SELECT * from ${free_like}
+		where ${mno} = #{mno}
+	</select>
+	
+	<select id="selectFreeLike" resultType="FreePageVO">
+		select * from ${free_page}
+		where ${freeNo} = #{freeNo}
+		order by ${freeNo} desc
+	</select>
+	
+	
+	<!-- 찜하기 기능 -->
+	<insert id="createFreeWish">
+		INSERT INTO ${free_wish} (${freeNo}, ${mno})
+		VALUES
+		(#{freeNo}, #{mno})
+	</insert>
+	
+	
+	<delete id="deleteFreeWish">
+		DELETE FROM ${free_wish}
+		WHERE ${freeNo} = #{freeNo}
+		AND ${mno} = #{mno}
+	</delete>
+	
+	
+	<select id="updateFreeWish">
+		UPDATE ${free_page}
+		SET
+		${freeWishCnt} = (SELECT
+		COUNT(*)
+		FROM ${free_wish}
+		WHERE ${freeNo} = #{freeNo})
+		WHERE ${freeNo} =
+		#{freeNo}
+	</select>
+	
+	
+	<select id="getFreeWish" resultType="int">
+		SELECT COUNT(${freeWishNo})
+		FROM ${free_wish} WHERE ${freeNo} = #{freeNo}
+		AND ${mno} = #{mno}
+	</select>
+	
+	
+	<select id="selectWish" resultType="FreeWishVO">
+		SELECT * from ${free_wish}
+		where ${mno} = #{mno}
+	</select>
+	
+	
+	
+	<select id="selectFreeWish" resultType="FreePageVO">
+		select * from
+		${free_page}
+		where ${freeNo} = #{freeNo}
+		order by ${freeNo} desc
+	</select>
+	
+	
+	<!-- 조회수별 순위 -->
+	<select id="bestListAll" resultType="FreePageVO">
+    select * from ${free_page}
+	order by ${freeViewCnt} desc
+	</select>
+	
+	<!-- 댓글수별 순위 -->
+	<select id="bestReviewAll" resultType="FreePageVO">
+    select * from ${free_page}
+	order by  ${freeReplyCnt} desc
+	</select>
+	
+	<!-- 좋아요별 순위 -->
+	<select id="bestGoodAll" resultType="FreePageVO">
+    select * from ${free_page}
+	order by  ${freeGoodCnt} desc
+	</select>
+	
+	<!-- 찜하기별 순위 -->
+	<select id="bestWishAll" resultType="FreePageVO">
+    select * from ${free_page}
+	order by  ${freeWishCnt} desc
+	</select>
+	
+	
+	
+	
+	
+	
+</mapper>

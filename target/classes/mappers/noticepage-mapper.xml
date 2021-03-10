@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="edu.spring.travel06.NoticeMapper">
+	
+	<!-- 공지사항 기능 -->
+	<select id="notice_select_all" resultType="NoticeVO">
+		select * from ${page_notice}
+		order by ${noticeNo} desc
+	</select>
+
+	<select id="select_by_noticeNo" resultType="NoticeVO">
+		select * from ${page_notice}
+		where ${noticeNo} = #{noticeNo} 
+	</select>
+	
+	<select id="select_by_nickname" resultType="NoticeVO">
+		select * from ${page_notice}
+		where ${noticeUserNickname} like #{noticeUserNickname}
+	</select>
+	
+
+	<insert id="insertNotice">
+		insert into ${page_notice} (${noticeTitle},
+		${noticeContent}, ${noticeUserNickname})
+		values (#{noticeTitle},
+		#{noticeContent},
+		#{noticeUserNickname})
+	</insert>
+
+	<update id="updateNotice">
+		update ${page_notice}
+		set ${noticeTitle} = #{noticeTitle},
+		${noticeContent} = #{noticeContent}
+		where ${noticeNo} = #{noticeNo}
+	</update>
+
+	<delete id="deleteNotice">
+		delete from ${page_notice}
+		where ${noticeNo} = #{noticeNo}
+	</delete>
+	
+	
+	<select id="total_count" resultType="Integer">
+		select count(*) total_cnt from ${page_notice}
+	</select>
+	
+	
+	
+	<select id="paging" resultType="NoticeVO">
+		select 
+		b.${noticeNo}, b.${noticeTitle}, b.${noticeContent}, b.${noticeUserNickname}, 
+		b.${noticeViewCnt}, b.${noticeReplyCnt}, b.${noticeCdate}
+		from ( 
+			select rownum rn, a.* 
+			from (
+				select * from ${page_notice} order by ${noticeNo} desc 
+			)a
+		)b 
+		where rn between #{start} and #{end}
+	</select>
+	
+	<!-- 공지사항 조회수 -->
+	<update id="update_noticeViewCnt" parameterType="int">
+		update ${page_notice}
+		set ${noticeViewCnt} = ${noticeViewCnt} + 1
+		where ${noticeNo} = #{noticeNo}
+	</update> 
+	
+	
+	
+	
+</mapper>
+

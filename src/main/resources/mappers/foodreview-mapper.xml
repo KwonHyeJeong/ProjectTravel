@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="edu.spring.travel06.FoodReviewMapper">
+
+	<insert id="insert">
+		insert into ${food_review}
+			(${foodNo}, ${foodReviewContent}, ${userNickname})
+			values (#{foodNo}, #{foodReviewContent}, #{userNickname})
+	</insert>
+	
+	
+	<select id="select_all" resultType="FoodReviewVO">
+		select * from ${food_review}
+		where ${foodNo} = #{foodNo}
+		order by ${foodNo}
+	</select>
+	
+	
+	<select id="select_by_reviewNo" resultType="FoodReviewVO">
+		select * from ${food_review}
+		where ${foodReviewNo} = #{foodReviewNo}
+		
+	</select>
+	
+	<select id="select_by_userNickName" resultType="FoodReviewVO">
+		select * from ${food_review}
+		where ${userNickname} = #{userNickname}
+		
+	</select>
+	
+	
+
+	<update id="update">
+		update ${food_review}
+		set ${foodReviewContent} = #{foodReviewContent}
+		where ${foodReviewNo} = #{foodReviewNo}
+	</update>
+	
+	<!-- 댓글 작성자에 따라 update -->
+	<update id="update_by_userNickName">
+		update ${food_review}
+		set ${userNickname} = #{newNickname}
+		where ${userNickname} = #{userNickname}
+	</update>
+	
+	
+	
+	
+	<delete id="delete">
+		delete from ${food_review}
+		where ${foodReviewNo} = #{foodReviewNo}
+	</delete>
+	
+	<!-- 댓글 페이징 처리 -->
+    <select id="listPaging" resultType="FoodReviewVO">
+      select 
+      b.${foodReviewNo},  b.${foodNo}, b.${userNickname}, 
+      b.${foodReviewContent}, b.${foodReviewCdate}
+      from (
+      		select rownum rn, a.*
+      		from (
+      			select * from ${food_review}
+      			where ${foodNo} = #{foodNo}
+      			order by ${foodReviewNo}
+      			)a
+      		)b
+      		where rn between #{start} and #{end}
+      
+      
+   </select> 
+   
+   <!-- 댓글 수 -->
+   <select id="countReviews">
+      select count(${foodNo})
+      from ${food_review}
+      where ${foodNo} = #{foodNo}
+   </select>
+
+</mapper>

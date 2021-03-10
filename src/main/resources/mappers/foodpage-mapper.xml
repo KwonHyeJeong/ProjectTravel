@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="edu.spring.travel06.FoodMapper">
+	
+	<insert id="insert">
+		insert into ${food_page} (${foodNo}, ${foodTitle}, ${foodContent}, ${userNickname}, ${img})
+		values (#{foodNo}, #{foodTitle}, #{foodContent}, #{userNickname},  #{img})
+	</insert>	
+	
+	<select id="select_all" resultType="FoodPageVO">
+		select * from ${food_page}
+		order by ${foodNo} desc
+	</select>
+	
+	<select id="select_by_foodNo" resultType="FoodPageVO">
+		select * from ${food_page}
+		where ${foodNo} = #{foodNo}
+	</select>
+	
+	<update id="update_view_cnt">
+		update ${food_page}
+		set ${foodViewCnt} = ${foodViewCnt} +1
+		where ${foodNo} = #{foodNo}
+	</update>
+	
+	<update id="update">
+		update ${food_page}
+		set ${foodTitle} = #{foodTitle}, ${foodContent} = #{foodContent}
+		where ${foodNo} = #{foodNo}
+	</update>
+	
+	<!-- 게시판 작성자에 따라 업데이트 -->
+	<update id="update_by_userNickname">
+		update ${food_page}
+		set ${userNickname} = #{newNickname}
+		where ${userNickname} = #{userNickname}
+	</update>
+	
+	
+	
+	<delete id="delete">
+		delete from ${food_page}
+		where ${foodNo} = #{foodNo}
+	</delete>
+
+	<select id="total_count" resultType="Integer">
+		select count(*) total_cnt from ${food_page}
+	</select>
+	
+	
+	
+	<select id="paging" resultType="FoodPageVO">
+		select 
+		b.${foodNo}, b.${foodTitle}, b.${foodContent}, b.${userNickname}, 
+		b.${foodGoodCnt}, b.${foodViewCnt}, b.${foodReplyCnt},
+		b.${foodWishCnt}, b.${foodCdate}, b.${img}
+		from ( 
+			select rownum rn, a.* 
+			from (
+				select * from ${food_page} 
+				<include refid="search"></include> 
+			)a
+		)b 
+		where rn between #{start} and #{end}
+		order by b.${foodNo} desc
+	</select> 
+	
+	
+	<select id="select_by_user_nickname" resultType="FoodPageVO">
+		select * from ${food_page}
+		where ${userNickname} like #{userNickname}
+	</select>
+	
+	<select id="select_by_title_content" resultType="FoodPageVO">
+		select * from ${food_page}
+		where ${foodTitle} like #{keyword} or
+			${foodContent} like #{keyword}
+			order by ${foodNo} desc
+	</select>
+	
+	<!-- 게시판 조회수 -->
+	<update id="update_foodViewCnt" parameterType="int">
+		update ${food_page}
+		set ${foodViewCnt} = ${foodViewCnt} + 1
+		where ${foodNo} = #{foodNo}
+	</update> 
+	
+	<!-- 검색조건  -->
+	<sql id="search">
+		<if test = "type != null">
+			<if test="type == 'title'.toString()"> 
+			where food_title LIKE '%'|| #{keyword} || '%'
+			</if>
+			<if test="type == 'content'.toString()"> 
+			where food_content LIKE '%'|| #{keyword} ||'%'
+			</if> 
+			<if test="type == 'user'.toString()"> 
+			where user_nickname LIKE '%'|| #{keyword} || '%'
+			</if> 
+			<if test="type == 'all'.toString()"> 
+			where ( 
+			food_title LIKE '%'|| #{keyword} || '%' or
+			food_content LIKE '%'|| #{keyword} || '%' or
+			user_nickname LIKE '%'|| #{keyword} || '%'
+				) 
+			</if>
+		</if>
+	</sql>
+	
+	
+	<!-- 댓글 수 -->
+	<update id="update_foodReviewCnt">
+		update ${food_page}
+		set ${foodReplyCnt} = ${foodReplyCnt} + #{amount}
+		where ${foodNo} = #{foodNo}
+	</update>
+	
+	
+	
+	
+	<!-- 좋아요 기능 -->
+	<insert id="createBoardLike">
+		INSERT INTO ${food_like} (${foodNo}, ${mno})
+		VALUES (#{foodNo}, #{mno})
+	</insert>
+	
+	
+	<delete id="deleteBoardLike">
+		DELETE FROM ${food_like}
+		WHERE ${foodNo} = #{foodNo} AND ${mno} = #{mno}
+	</delete>
+	
+	
+	<select id="updateBoardLike">
+		UPDATE ${food_page}
+		SET
+		${foodGoodCnt} = (SELECT COUNT(*)
+		FROM ${food_like}
+		WHERE ${foodNo} = #{foodNo})
+		WHERE ${foodNo} = #{foodNo}
+	</select>
+	
+	
+	<select id="getBoardLike" resultType="int">
+		SELECT COUNT(${foodLikeNo}) FROM ${food_like} WHERE ${foodNo} = #{foodNo}
+		AND ${mno} = #{mno}
+	</select>
+	
+	
+	<select id="selectLike" resultType="FoodLikeVO">
+	SELECT * from ${food_like}
+	where ${mno} = #{mno}
+	</select>
+	
+	
+	<select id="selectFoodLike" resultType="FoodPageVO">
+		select * from ${food_page}
+		where ${foodNo} = #{foodNo}
+		order by ${foodNo} desc
+	</select>
+	
+	
+	
+	<!-- 찜하기 기능 -->
+	<insert id="createFoodWish">
+		INSERT INTO ${food_wish} (${foodNo}, ${mno})
+		VALUES
+		(#{foodNo}, #{mno})
+	</insert>
+	
+	
+	<delete id="deleteFoodWish">
+		DELETE FROM ${food_wish}
+		WHERE ${foodNo} = #{foodNo}
+		AND ${mno} = #{mno}
+	</delete>
+	
+	
+	<select id="updateFoodWish">
+		UPDATE ${food_page}
+		SET
+		${foodWishCnt} = (SELECT
+		COUNT(*)
+		FROM ${food_wish}
+		WHERE ${foodNo} = #{foodNo})
+		WHERE ${foodNo} =
+		#{foodNo}
+	</select>
+	
+	
+	<select id="getFoodWish" resultType="int">
+		SELECT COUNT(${foodWishNo})
+		FROM ${food_wish} WHERE ${foodNo} = #{foodNo}
+		AND ${mno} = #{mno}
+	</select>
+	
+	
+	<select id="selectWish" resultType="FoodWishVO">
+		SELECT * from ${food_wish}
+		where ${mno} = #{mno}
+	</select>
+	
+	
+	<select id="selectFoodWish" resultType="FoodPageVO">
+		select * from ${food_page}
+		where ${foodNo} = #{foodNo}
+		order by ${foodNo} desc
+	</select>
+	
+	
+	<!-- 조회수별 순위 -->
+	<select id="bestListAll" resultType="FoodPageVO">
+    select * from ${food_page}
+	order by ${foodViewCnt} desc
+	</select>
+	
+	<!-- 댓글수별 순위 -->
+	<select id="bestReviewAll" resultType="FoodPageVO">
+    select * from ${food_page}
+	order by  ${foodReplyCnt} desc
+	</select>
+	
+	<!-- 좋아요별 순위 -->
+	<select id="bestGoodAll" resultType="FoodPageVO">
+    select * from ${food_page}
+	order by  ${foodGoodCnt} desc
+	</select>
+	
+	<!-- 찜하기별 순위 -->
+	<select id="bestWishAll" resultType="FoodPageVO">
+    select * from ${food_page}
+	order by  ${foodWishCnt} desc
+	</select>
+	
+	
+	
+</mapper>
+
+

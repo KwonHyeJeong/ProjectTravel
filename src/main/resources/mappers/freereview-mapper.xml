@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="edu.spring.travel06.FreeReviewMapper">
+	<insert id="insert">
+		insert into ${free_review}
+			(${freeNo}, ${freeReviewContent}, ${userNickname})
+			values (#{freeNo}, #{freeReviewContent}, #{userNickname})
+	</insert>
+	
+	<select id="select_all" resultType="FreeReviewVO">
+		select * from ${free_review}
+		where ${freeNo} = #{freeNo}
+		order by ${freeNo}
+	</select>
+	
+	<select id="select_by_reviewNo" resultType="FreeReviewVO">
+		select * from ${free_review}
+		where ${freeReviewNo} = #{freeReviewNo}
+		
+	</select>
+	
+	<select id="select_by_userNickName" resultType="FreeReviewVO">
+		select * from ${free_review}
+		where ${userNickname} = #{userNickname}
+		
+	</select>
+	
+	
+
+	<update id="update">
+		update ${free_review}
+		set ${freeReviewContent} = #{freeReviewContent},
+		${freeNo} = #{freeNo}, ${userNickname} = #{userNickname}
+		where ${freeReviewNo} = #{freeReviewNo}
+	</update>
+	
+	
+	<delete id="delete">
+		delete from ${free_review}
+		where ${freeReviewNo} = #{freeReviewNo}
+	</delete>
+	
+	<!-- 댓글 작성자에 따라 update -->
+	<update id="update_by_userNickName">
+		update ${free_review}
+		set ${userNickname} = #{newNickname}
+		where ${userNickname} = #{userNickname}
+	</update>
+	
+	
+	<!-- 댓글 페이징 처리 -->
+ 	<select id="listPaging" resultType="FreeReviewVO">
+		select 
+		b.${freeReviewNo}, b.${freeNo}, b.${userNickname}, b.${freeReviewContent}, 
+		b.${freeReviewCdate}
+		from ( 
+			select rownum rn, a.* 
+			from (
+				select * from ${free_review}
+				where ${freeNo} = #{freeNo} 
+				order by ${freeReviewNo}  
+			)a
+		)b 
+		where rn between #{start} and #{end}
+	</select> 
+	
+	<!-- 댓글 수 -->
+	<select id="countReviews">
+		select count(${freeNo})
+		from ${free_review}
+		where ${freeNo} = #{freeNo}
+	</select>
+	
+	
+
+</mapper>

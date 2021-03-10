@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="edu.spring.travel06.ThemeMapper">
+	
+	<insert id="insert">
+		insert into ${thema_page} (${themaNo}, ${themaTitle}, ${themaContent}, ${userNickname}, ${img})
+		values (#{themaNo}, #{themaTitle}, #{themaContent}, #{userNickname},  #{img})
+	</insert>	
+	
+	<select id="select_all" resultType="ThemePageVO">
+		select * from ${thema_page}
+		order by ${themaNo} desc
+	</select>
+	
+	<select id="select_by_themaNo" resultType="ThemePageVO">
+		select * from ${thema_page}
+		where ${themaNo} = #{themaNo}
+	</select>
+	
+	<update id="update_view_cnt">
+		update ${thema_page}
+		set ${themaViewCnt} = ${themaViewCnt} +1
+		where ${themaNo} = #{themaNo}
+	</update>
+	
+	<update id="update">
+		update ${thema_page}
+		set ${themaTitle} = #{themaTitle}, ${themaContent} = #{themaContent}
+		where ${themaNo} = #{themaNo}
+	</update>
+	
+	<!-- 게시판 작성자에 따라 업데이트 -->
+	<update id="update_by_userNickname">
+		update ${thema_page}
+		set ${userNickname} = #{newNickname}
+		where ${userNickname} = #{userNickname}
+	</update>
+	
+	
+	
+	<delete id="delete">
+		delete from ${thema_page}
+		where ${themaNo} = #{themaNo}
+	</delete>
+
+	<select id="total_count" resultType="Integer">
+		select count(*) total_cnt from ${thema_page}
+	</select>
+	
+	
+	
+	<select id="paging" resultType="ThemePageVO">
+		select 
+		b.${themaNo}, b.${themaTitle}, b.${themaContent}, b.${userNickname}, b.${themaGoodCnt}, b.${themaViewCnt}, b.${themaReplyCnt},b.${themaWishCnt},  b.${themaCdate}, b.${img}
+		from ( 
+			select rownum rn, a.* 
+			from (
+				select * from ${thema_page}
+				<include refid="search"></include> 
+			)a
+		)b 
+		where rn between #{start} and #{end}
+		order by b.${themaNo} desc
+	</select> 
+	
+	
+	<select id="select_by_user_nickname" resultType="ThemePageVO">
+		select * from ${thema_page}
+		where ${userNickname} like #{userNickname}
+	</select>
+	
+	
+	<select id="select_by_title_content" resultType="ThemePageVO">
+		select * from ${thema_page}
+		where ${themaTitle} like #{keyword} or
+			${themaContent} like #{keyword}
+			order by ${themaNo} desc
+	</select>
+	
+	<!-- 게시판 조회수 -->
+	<update id="update_themaViewCnt" parameterType="int">
+		update ${thema_page}
+		set ${themaViewCnt} = ${themaViewCnt} + 1
+		where ${themaNo} = #{themaNo}
+	</update> 
+	
+	<!-- 검색조건  -->
+	<sql id="search">
+		<if test = "type != null">
+			<if test="type == 'title'.toString()"> 
+			where thema_title LIKE '%'|| #{keyword}||'%' 
+			</if>
+			<if test="type == 'content'.toString()"> 
+			where thema_content LIKE '%'||#{keyword}||'%'
+			</if> 
+			<if test="type == 'user'.toString()"> 
+			where user_nickname LIKE '%'||#{keyword}||'%' 
+			</if> 
+			<if test="type == 'all'.toString()"> 
+			where( 
+			thema_title LIKE '%' ||#{keyword}||'%' or
+			thema_content LIKE '%'|| #{keyword}|| '%'or 
+			user_nickname LIKE '%'||#{keyword}||'%'  
+				) 
+			</if>
+		</if>
+	</sql>
+	
+	
+	
+	<!-- 댓글 수 -->
+	<update id="update_themaReviewCnt">
+		update ${thema_page}
+		set ${themaReplyCnt} = ${themaReplyCnt} + #{amount}
+		where ${themaNo} = #{themaNo}
+	</update>
+	
+	
+	<!-- 좋아요 기능 -->
+	<insert id="createBoardLike">
+		INSERT INTO ${thema_like} (${themaNo}, ${mno})
+		VALUES (#{themaNo}, #{mno})
+	</insert>
+
+	<delete id="deleteBoardLike">
+		DELETE FROM ${thema_like}
+		WHERE ${themaNo} = #{themaNo} AND ${mno} = #{mno}
+	</delete>
+
+	<select id="updateBoardLike">
+		UPDATE ${thema_page}
+		SET
+		${themaGoodCnt} = (SELECT COUNT(*)
+		FROM ${thema_like}
+		WHERE ${themaNo} = #{themaNo})
+		WHERE ${themaNo} = #{themaNo}
+	</select>
+
+	<select id="getBoardLike" resultType="int">
+		SELECT COUNT(${themaLikeNo}) FROM ${thema_like} WHERE ${themaNo} = #{themaNo}
+		AND ${mno} = #{mno}
+	</select>
+	
+	<select id="selectLike" resultType="ThemeLikeVO">
+	SELECT * from ${thema_like}
+	where ${mno} = #{mno}
+	</select>
+
+	<select id="selectThemeLike" resultType="ThemePageVO">
+		select * from ${thema_page}
+		where ${themaNo} = #{themaNo}
+		order by ${themaNo} desc
+	</select>
+	
+	
+	
+	<!-- 찜하기 기능 -->
+	<insert id="createThemeWish">
+		INSERT INTO ${thema_wish} (${themaNo}, ${mno})
+		VALUES
+		(#{themaNo}, #{mno})
+	</insert>
+	
+	
+	<delete id="deleteThemeWish">
+		DELETE FROM ${thema_wish}
+		WHERE ${themaNo} = #{themaNo}
+		AND ${mno} = #{mno}
+	</delete>
+	
+	
+	<select id="updateThemeWish">
+		UPDATE ${thema_page}
+		SET
+		${themaWishCnt} = (SELECT
+		COUNT(*)
+		FROM ${thema_wish}
+		WHERE ${themaNo} = #{themaNo})
+		WHERE ${themaNo} = #{themaNo}
+	</select>
+	
+	
+	<select id="getThemeWish" resultType="int">
+		SELECT COUNT(${themaWishNo})
+		FROM ${thema_wish} WHERE ${themaNo} = #{themaNo}
+		AND ${mno} = #{mno}
+	</select>
+	
+	
+	<select id="selectWish" resultType="ThemeWishVO">
+		SELECT * from ${thema_wish}
+		where ${mno} = #{mno}
+	</select>
+	
+	
+	<select id="selectThemeWish" resultType="ThemePageVO">
+		select * from ${thema_page}
+		where ${themaNo} = #{themaNo}
+		order by ${themaNo} desc
+	</select>
+	
+	
+	<!-- 조회수별 순위 -->
+	<select id="bestListAll" resultType="ThemePageVO">
+    select * from ${thema_page}
+	order by ${themaViewCnt} desc
+	</select>
+	
+	<!-- 댓글수별 순위 -->
+	<select id="bestReviewAll" resultType="ThemePageVO">
+    select * from ${thema_page}
+	order by  ${themaReplyCnt} desc
+	</select>
+	
+	<!-- 좋아요별 순위 -->
+	<select id="bestGoodAll" resultType="ThemePageVO">
+    select * from ${thema_page}
+	order by  ${themaGoodCnt} desc
+	</select>
+	
+	<!-- 찜하기별 순위 -->
+	<select id="bestWishAll" resultType="ThemePageVO">
+    select * from ${thema_page}
+	order by  ${themaWishCnt} desc
+	</select>
+	
+	
+</mapper>
+
+

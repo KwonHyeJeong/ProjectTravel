@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="edu.spring.travel06.VisitMapper">
+	<!-- namespace : 주로 dao와 연결하기 위한 키로 사용 -->
+	
+	<!-- 
+	컬럼이름 : mybatis-config.xml의 name
+	${컬럼이름} : DB 테이블의 열
+	#{컬럼이름} : 입력받은 데이터
+	 -->
+	<!-- DB 쿼리 작성 -->
+	<!-- id : dao의 메소드와 연결하기 위해 사용 -->
+
+	<!-- 
+	select count(*) VISIT_TIME
+	from VISITOR
+	where substr(to_char(VISIT_TIME), 1, 9) = to_date(sysdate, 'yy/MM/dd');
+
+	select count(*) VISIT_TIME
+	from VISITOR;
+	
+	 -->
+	 
+	 <insert id="insertVisit">
+		insert into ${visitor} (${visitId})
+		values (#{visitId})
+	</insert>
+	
+	
+	<!-- 전체 방문자수 조회 -->
+	<select id="totalVisit" resultType="int">
+		select count(*) ${visitTime}
+		from ${visitor}
+	</select>
+	
+	<!-- 오늘 방문자수 조회 -->
+	<select id="todayVisit" resultType="int">
+		select count(*) ${visitTime}
+		from ${visitor}
+		where substr(to_char(${visitTime}), 1, 9) = to_date(sysdate, 'yy/MM/dd')
+	</select>
+	
+	
+	
+</mapper>
+

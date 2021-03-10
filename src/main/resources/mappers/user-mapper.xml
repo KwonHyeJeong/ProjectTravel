@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="edu.spring.travel06.UserMapper">
+	<!-- namespace : 주로 dao와 연결하기 위한 키로 사용 -->
+	
+	<!-- 
+	컬럼이름 : mybatis-config.xml의 name
+	${컬럼이름} : DB 테이블의 열
+	#{컬럼이름} : 입력받은 데이터
+	 -->
+	<!-- DB 쿼리 작성 -->
+	<!-- id : dao의 메소드와 연결하기 위해 사용 -->
+	<insert id="insert">
+		insert into ${project_user}(${userName}, ${userID}, ${userPWD}, ${userEmail}, 
+				 ${userPhone}, ${userBirth}, ${userNickName}, ${userWarning})
+		values(#{userName}, #{userID}, #{userPWD}, #{userEmail}, 
+				#{userPhone}, #{userBirth}, #{userNickName}, #{userWarning})
+				 
+	</insert>
+	
+	
+	<select id="select_all" resultType="UserVO">
+		select * from ${project_user} 
+		order by ${userNo} desc
+	</select>
+	
+	
+	<select id="select_by_userID" resultType="UserVO">
+		select * from ${project_user} 
+		where ${userID} = #{userID}
+		or ${userNickName} = #{userNickName}
+	</select>
+	
+	
+	<select id="select_by_findID" resultType="UserVO">
+		select * from ${project_user} 
+		where ${userName} like #{userName}
+		and ${userBirth} like #{userBirth}
+		and ${userPhone} like #{userPhone}
+	</select>
+	
+	
+	<!-- 사용자가 총 몇명 인지 -->
+	<select id="total_count" resultType="Integer">
+		select count(*) total_cnt from ${project_user}
+	</select>
+	
+	
+	<!-- 사용자 관리 List -->
+	<select id="paging" resultType="UserVO">
+		select 
+		b.${userNo}, b.${userName}, b.${userID}, b.${userPWD}, b.${userEmail},
+		b.${userPhone}, b.${userBirth}, b.${userNickName}, b.${userWarning}
+		from ( 
+			select rownum rn, a.* 
+			from (
+				select * from ${project_user} order by ${userNo} desc 
+			)a
+		)b 
+		where rn between #{start} and #{end}
+	</select> 
+	
+	
+	
+	<update id="update">
+		update ${project_user}
+		set ${userPWD} = #{userPWD}, ${userEmail} = #{userEmail},
+			${userPhone} = #{userPhone}, ${userBirth} = #{userBirth}, ${userNickName} = #{userNickName}
+		where ${userID} = #{userID}
+	</update>
+	
+	
+	<delete id="delete">
+		delete from ${project_user}
+		where ${userID} = #{userID}
+	</delete>
+	
+	
+	<update id="update_user_warning">
+		update ${project_user}
+		set ${userWarning} = ${userWarning} + #{amount}
+		where ${userNo} = #{userNo}
+		
+	</update>
+	
+	
+	
+</mapper>
+
+
